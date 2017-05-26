@@ -755,7 +755,7 @@ namespace EntityFramework.DynamicFilters
         /// <returns></returns>
         public static object GetFilterParameterValue(this DbContext context, string filterName, string parameterName)
         {
-            context.Database.Initialize(false);
+            context?.Database.Initialize(false);
 
             //  First check to see if this the Disabled parameter.
             if (parameterName == DynamicFilterConstants.FILTER_DISABLED_NAME)
@@ -770,7 +770,7 @@ namespace EntityFramework.DynamicFilters
             object value;
 
             //  First try to get the value from _ScopedParameterValues
-            if (_ScopedParameterValues.TryGetValue(context, out contextFilters))
+            if (context != null && _ScopedParameterValues.TryGetValue(context, out contextFilters))
             {
                 if (contextFilters.TryGetValue(filterName, out filterParams))
                 {
@@ -811,7 +811,7 @@ namespace EntityFramework.DynamicFilters
         /// <returns></returns>
         public static bool IsFilterEnabled(this DbContext context, string filterName)
         {
-            context.Database.Initialize(false);
+            context?.Database.Initialize(false);
 
             filterName = ScrubFilterName(filterName);
 
@@ -819,7 +819,7 @@ namespace EntityFramework.DynamicFilters
             DynamicFilterParameters filterParams;
 
             //  If specifically enabled/disabled on local scope, that overrides anything global
-            if (_ScopedParameterValues.TryGetValue(context, out contextFilters))
+            if (context != null && _ScopedParameterValues.TryGetValue(context, out contextFilters))
             {
                 if (contextFilters.TryGetValue(filterName, out filterParams))
                 {
@@ -919,7 +919,7 @@ namespace EntityFramework.DynamicFilters
                         //  We need to convert this into an 'in' clause so that we can dynamically set the
                         //  values in the collection.
                         SetParameterList(value as IEnumerable, param, command, IsOracle(context), IsMySql(context));
-                        if (context.Database.Log != null)
+                        if (context?.Database.Log != null)
                             context.Database.Log(string.Format("Manually replaced single parameter value with list, new SQL=\r\n{0}", command.CommandText));
                     }
                     else
@@ -1129,12 +1129,12 @@ namespace EntityFramework.DynamicFilters
 
         internal static bool IsOracle(this DbContext context)
         {
-            return context.Database.Connection.GetType().FullName.Contains("Oracle");
+            return context?.Database.Connection.GetType().FullName.Contains("Oracle") ?? false;
         }
 
         internal static bool IsMySql(this DbContext context)
         {
-            return context.Database.Connection.GetType().FullName.Contains("MySql");
+            return context?.Database.Connection.GetType().FullName.Contains("MySql") ?? false;
         }
 
         private static string ScrubFilterName(string filterName)
