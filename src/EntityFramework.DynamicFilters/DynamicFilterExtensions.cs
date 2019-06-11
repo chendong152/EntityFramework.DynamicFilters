@@ -93,7 +93,7 @@ namespace EntityFramework.DynamicFilters
             where TEntity : class
         {
             filterName = ScrubFilterName(filterName);
-            var filterDefinition = new DynamicFilterDefinition(Guid.NewGuid(), filterName, null, columnName, typeof(TEntity));
+            var filterDefinition = new DynamicFilterDefinition(Guid.NewGuid(), filterName, null, columnName, typeof(TEntity), null);
 
             config.HasTableAnnotation(filterDefinition.AttributeName, filterDefinition);
 
@@ -178,13 +178,12 @@ namespace EntityFramework.DynamicFilters
         /// <param name="filterName"></param>
         /// <param name="predicate"></param>
         /// <param name="value0"></param>
-        /// <param name="selectEntityTypeCondition">If not null, this delegate should return true if the filter should be applied to the given entity Type.
-        /// False if not.  Allows additional logic to be applied to determine if the filter should be applied to an Entity of type "TEntity".
-        /// i.e. To apply the filter to all entities of a particular interface but not if those entities also implement another interface.</param>
-        public static void Filter<TEntity, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, Func<T0> value0, Func<Type, bool> selectEntityTypeCondition = null)
+        /// <param name="options">Options for how and when to apply this filter</param>
+        public static void Filter<TEntity, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, Func<T0> value0, 
+                                                Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0);
         }
 
         /// <summary>
@@ -197,14 +196,13 @@ namespace EntityFramework.DynamicFilters
         /// <param name="filterName"></param>
         /// <param name="predicate"></param>
         /// <param name="value0"></param>
-        /// <param name="selectEntityTypeCondition">If not null, this delegate should return true if the filter should be applied to the given entity Type.
-        /// False if not.  Allows additional logic to be applied to determine if the filter should be applied to an Entity of type "TEntity".
-        /// i.e. To apply the filter to all entities of a particular interface but not if those entities also implement another interface.</param>
-        public static void Filter<TEntity, TContext, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, Func<TContext, T0> value0, Func<Type, bool> selectEntityTypeCondition = null)
+        /// <param name="options">Options for how and when to apply this filter</param>
+        public static void Filter<TEntity, TContext, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, Func<TContext, T0> value0,
+                                                        Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
             where TContext : DbContext
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0);
         }
 
         /// <summary>
@@ -216,114 +214,113 @@ namespace EntityFramework.DynamicFilters
         /// <param name="filterName"></param>
         /// <param name="predicate"></param>
         /// <param name="value0"></param>
-        /// <param name="selectEntityTypeCondition">If not null, this delegate should return true if the filter should be applied to the given entity Type.
-        /// False if not.  Allows additional logic to be applied to determine if the filter should be applied to an Entity of type "TEntity".
-        /// i.e. To apply the filter to all entities of a particular interface but not if those entities also implement another interface.</param>
-        public static void Filter<TEntity, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, T0 value0, Func<Type, bool> selectEntityTypeCondition = null)
+        /// <param name="options">Options for how and when to apply this filter</param>
+        public static void Filter<TEntity, T0>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, bool>> predicate, T0 value0,
+                                                Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0);
         }
 
         public static void Filter<TEntity, T0, T1>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, bool>> predicate,
-                                                    Func<T0> value0, Func<T1> value1, Func<Type, bool> selectEntityTypeCondition = null)
+                                                    Func<T0> value0, Func<T1> value1, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1);
         }
 
         public static void Filter<TEntity, TContext, T0, T1>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, bool>> predicate,
-                                                    Func<TContext, T0> value0, Func<TContext, T1> value1, Func<Type, bool> selectEntityTypeCondition = null)
+                                                    Func<TContext, T0> value0, Func<TContext, T1> value1, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
             where TContext : DbContext
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1);
         }
 
         public static void Filter<TEntity, T0, T1>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, bool>> predicate,
-                                                    T0 value0, T1 value1, Func<Type, bool> selectEntityTypeCondition = null)
+                                                    T0 value0, T1 value1, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1);
         }
 
         public static void Filter<TEntity, T0, T1, T2>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, bool>> predicate,
-                                                        Func<T0> value0, Func<T1> value1, Func<T2> value2, Func<Type, bool> selectEntityTypeCondition = null)
+                                                        Func<T0> value0, Func<T1> value1, Func<T2> value2, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2);
         }
 
         public static void Filter<TEntity, TContext, T0, T1, T2>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, bool>> predicate,
                                                         Func<TContext, T0> value0, Func<TContext, T1> value1, Func<TContext, T2> value2,
-                                                        Func<Type, bool> selectEntityTypeCondition = null)
+                                                        Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
             where TContext : DbContext
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2);
         }
 
         public static void Filter<TEntity, T0, T1, T2>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, bool>> predicate,
-                                                        T0 value0, T1 value1, T2 value2, Func<Type, bool> selectEntityTypeCondition = null)
+                                                        T0 value0, T1 value1, T2 value2, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2);
         }
 
         public static void Filter<TEntity, T0, T1, T2, T3>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, bool>> predicate,
-                                                            Func<T0> value0, Func<T1> value1, Func<T2> value2, Func<T3> value3, Func<Type, bool> selectEntityTypeCondition = null)
+                                                            Func<T0> value0, Func<T1> value1, Func<T2> value2, Func<T3> value3, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
         }
 
         public static void Filter<TEntity, TContext, T0, T1, T2, T3>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, bool>> predicate,
                                                             Func<TContext, T0> value0, Func<TContext, T1> value1, Func<TContext, T2> value2, Func<TContext, T3> value3,
-                                                            Func<Type, bool> selectEntityTypeCondition = null)
+                                                            Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
             where TContext : DbContext
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
         }
 
         public static void Filter<TEntity, T0, T1, T2, T3>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, bool>> predicate,
-                                                            T0 value0, T1 value1, T2 value2, T3 value3, Func<Type, bool> selectEntityTypeCondition = null)
+                                                            T0 value0, T1 value1, T2 value2, T3 value3, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3);
         }
 
         public static void Filter<TEntity, T0, T1, T2, T3, T4>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, T4, bool>> predicate,
                                                                 Func<T0> value0, Func<T1> value1, Func<T2> value2, Func<T3> value3, Func<T4> value4,
-                                                                Func<Type, bool> selectEntityTypeCondition = null)
+                                                                Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
         }
 
         public static void Filter<TEntity, TContext, T0, T1, T2, T3, T4>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, T4, bool>> predicate,
                                                                 Func<TContext, T0> value0, Func<TContext, T1> value1, Func<TContext, T2> value2, Func<TContext, T3> value3, Func<TContext, T4> value4,
-                                                                Func<Type, bool> selectEntityTypeCondition = null)
+                                                                Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
             where TContext : DbContext
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
         }
 
         public static void Filter<TEntity, T0, T1, T2, T3, T4>(this DbModelBuilder modelBuilder, string filterName, Expression<Func<TEntity, T0, T1, T2, T3, T4, bool>> predicate,
-                                                                T0 value0, T1 value1, T2 value2, T3 value3, T4 value4, Func<Type, bool> selectEntityTypeCondition = null)
+                                                                T0 value0, T1 value1, T2 value2, T3 value3, T4 value4, Func<DynamicFilterConfig, DynamicFilterOptions> options = null)
             where TEntity : class
         {
-            Filter<TEntity>(modelBuilder, filterName, selectEntityTypeCondition, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
+            Filter<TEntity>(modelBuilder, filterName, options, predicate, (object)value0, (object)value1, (object)value2, (object)value3, (object)value4);
         }
 
-        private static void Filter<TEntity>(DbModelBuilder modelBuilder, string filterName, Func<Type, bool> selectEntityTypeCondition, LambdaExpression predicate, params object[] valueList)
+        private static void Filter<TEntity>(DbModelBuilder modelBuilder, string filterName, Func<DynamicFilterConfig, DynamicFilterOptions> options, LambdaExpression predicate, params object[] valueList)
         {
             InitializeDynamicFilters(null);
 
             filterName = ScrubFilterName(filterName);
 
-            modelBuilder.Conventions.Add(new DynamicFilterConvention(filterName, typeof(TEntity), predicate, null, selectEntityTypeCondition));
+            modelBuilder.Conventions.Add(new DynamicFilterConvention(filterName, typeof(TEntity), predicate, null, options));
 
             //  Always add the filter to _GlobalParameterValues - need it to be able to disable it
             _GlobalParameterValues.TryAdd(filterName, new DynamicFilterParameters());
@@ -755,7 +752,7 @@ namespace EntityFramework.DynamicFilters
         /// <returns></returns>
         public static object GetFilterParameterValue(this DbContext context, string filterName, string parameterName)
         {
-            context?.Database.Initialize(false);
+            context.Database.Initialize(false);
 
             //  First check to see if this the Disabled parameter.
             if (parameterName == DynamicFilterConstants.FILTER_DISABLED_NAME)
@@ -770,7 +767,7 @@ namespace EntityFramework.DynamicFilters
             object value;
 
             //  First try to get the value from _ScopedParameterValues
-            if (context != null && _ScopedParameterValues.TryGetValue(context, out contextFilters))
+            if (_ScopedParameterValues.TryGetValue(context, out contextFilters))
             {
                 if (contextFilters.TryGetValue(filterName, out filterParams))
                 {
@@ -811,7 +808,7 @@ namespace EntityFramework.DynamicFilters
         /// <returns></returns>
         public static bool IsFilterEnabled(this DbContext context, string filterName)
         {
-            context?.Database.Initialize(false);
+            context.Database.Initialize(false);
 
             filterName = ScrubFilterName(filterName);
 
@@ -819,7 +816,7 @@ namespace EntityFramework.DynamicFilters
             DynamicFilterParameters filterParams;
 
             //  If specifically enabled/disabled on local scope, that overrides anything global
-            if (context != null && _ScopedParameterValues.TryGetValue(context, out contextFilters))
+            if (_ScopedParameterValues.TryGetValue(context, out contextFilters))
             {
                 if (contextFilters.TryGetValue(filterName, out filterParams))
                 {
@@ -891,7 +888,7 @@ namespace EntityFramework.DynamicFilters
                 //  errors if we don't do that now.
                 if (value == null)
                 {
-                    if (filterNameAndParam.Item2 == DynamicFilterConstants.FILTER_DISABLED_NAME)
+                    if ((filterNameAndParam.Item2 == DynamicFilterConstants.FILTER_DISABLED_NAME) && CanRemoveFilterDisabledConditionFromQuery(context))
                     {
                         //  This is the "is disabled" param and the filter is not disabled.  There are cases where
                         //  including the "OR (@DynamicFilterParam_1 IS NOT NULL)" clause causes problems with
@@ -918,8 +915,8 @@ namespace EntityFramework.DynamicFilters
                         //  Generic collection.  The EF query created for this collection was an '=' condition.
                         //  We need to convert this into an 'in' clause so that we can dynamically set the
                         //  values in the collection.
-                        SetParameterList(value as IEnumerable, param, command, IsOracle(context), IsMySql(context));
-                        if (context?.Database.Log != null)
+                        SetParameterList(value as IEnumerable, param, command, context);
+                        if (context.Database.Log != null)
                             context.Database.Log(string.Format("Manually replaced single parameter value with list, new SQL=\r\n{0}", command.CommandText));
                     }
                     else
@@ -980,10 +977,13 @@ namespace EntityFramework.DynamicFilters
         /// <param name="paramValueCollection"></param>
         /// <param name="param"></param>
         /// <param name="command"></param>
-        /// <param name="isOracle"></param>
-        /// <param name="isMySql"></param>
-        private static void SetParameterList(IEnumerable paramValueCollection, DbParameter param, DbCommand command, bool isOracle, bool isMySql)
+        /// <param name="context"></param>
+        private static void SetParameterList(IEnumerable paramValueCollection, DbParameter param, DbCommand command, DbContext context)
         {
+            bool isOracle = IsOracle(context);
+            bool isMySql = IsMySql(context);
+            var canChangeCommandText = CanChangeSQLCommandText(context);
+
             int prevStartIndex = 0;
             int paramStartIdx;
             bool isNotCondition = false;
@@ -1031,6 +1031,9 @@ namespace EntityFramework.DynamicFilters
                 }
 
                 inCondition.Append(")");
+
+                if (!canChangeCommandText)
+                    throw new ApplicationException("This Database Provider does not support modifing the DbCommand.CommandText property - IEnumerable values cannot be set");
 
                 command.CommandText = string.Concat(command.CommandText.Substring(0, startIdx),
                                                     inCondition,
@@ -1125,17 +1128,79 @@ namespace EntityFramework.DynamicFilters
 
         #endregion
 
+        #region Database Server Info
+
+        public static bool IsOracle(this DbContext context)
+        {
+            return context.Database.Connection.GetType().FullName.Contains("Oracle");
+        }
+
+        //  Static cache of oracle versions so that we only do this ONCE per datasource.
+        private static ConcurrentDictionary<string, Version> _OracleInstanceVersions = new ConcurrentDictionary<string, Version>();
+
+        /// <summary>
+        /// Returns the verson of the Oracle server or null if this is not an Oracle server
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static Version OracleVersion(this DbContext context)
+        {
+            if (!context.IsOracle())
+                return null;
+
+            return _OracleInstanceVersions.GetOrAdd(context.Database.Connection.ConnectionString, k =>
+            {
+                var versionStr = context.Database.SqlQuery<string>("select version from product_component_version where product like '%Database%'").FirstOrDefault();
+
+                return new Version(string.Join(".", versionStr.Split('.').Take(4)));
+            });
+        }
+
+        public static bool IsMySql(this DbContext context)
+        {
+            return context.Database.Connection.GetType().FullName.Contains("MySql");
+        }
+
+        public static bool IsSQLCE(this DbContext context)
+        {
+            return (context.Database.Connection.GetType().FullName.Contains("SqlServerCe"));
+        }
+
+        /// <summary>
+        /// Returns true if the database provider allows changing the sql command text.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        private static bool CanChangeSQLCommandText(DbContext context)
+        {
+            if (IsSQLCE(context))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// True if we can remove unnecessary disable filter conditions.
+        /// The Oracle DevArt driver does not allow removing parameters so need to prevent it in this case
+        /// (see https://github.com/jcachat/EntityFramework.DynamicFilters/issues/114)
+        /// or if the driver does not support modifying the Command Text (i.e. SQL CE)
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        private static bool CanRemoveFilterDisabledConditionFromQuery(DbContext context)
+        {
+            if (!CanChangeSQLCommandText(context))
+                return false;
+
+            if (IsOracle(context) && context.Database.Connection.GetType().FullName.ToLower().Contains("devart"))
+                return false;
+
+            return true;
+        }
+
+        #endregion
+
         #region Private Methods
-
-        internal static bool IsOracle(this DbContext context)
-        {
-            return context?.Database.Connection.GetType().FullName.Contains("Oracle") ?? false;
-        }
-
-        internal static bool IsMySql(this DbContext context)
-        {
-            return context?.Database.Connection.GetType().FullName.Contains("MySql") ?? false;
-        }
 
         private static string ScrubFilterName(string filterName)
         {
